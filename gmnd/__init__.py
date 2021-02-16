@@ -7,21 +7,47 @@ import sys
 from socket import AF_INET, SHUT_RDWR, SO_REUSEADDR, SOCK_STREAM, SOL_SOCKET
 from urllib.parse import urlparse
 
+import yaml
+
 
 class gMNd:
     def __init__(self, options={}):
-        self.base_path = options.get('base_path', './content')
-        self.logg_level = options.get('logg_level', logging.INFO)
-        self.listen_addr = options.get('listen_addr', '127.0.0.1')
         self.allow_dir_list = options.get('allow_dir_list', False)
+        self.base_path = options.get('base_path', './content')
+        self.config_file = options.get('config_file', None)
+        self.listen_addr = options.get('listen_addr', '127.0.0.1')
         self.listen_port = options.get('listen_port', 1965)
+        self.logg_level = options.get('logg_level', logging.INFO)
         self.server_cert = options.get('server_cert', './certs/cert.pem')
         self.server_key = options.get('server_key', './certs/cert.key')
         logging.basicConfig(stream=sys.stderr, level=self.logg_level)
+        if self.config_file:
+            if os.path.isfile(self.config_file):
+                self.read_config()
+            else:
+                logging.warning("Config file supplied, but it is not a file")
         self.bindsocket = socket.socket()
 
         self.bindsocket.bind((self.listen_addr, self.listen_port))
         self.bindsocket.listen(5)
+
+    def read_config(self):
+        with open(self.config_file) as configfile:
+            config_dict = yaml.load(configfile, Loader=yaml.FullLoader)
+            if 'allow_dir_list' in config_dict:
+                self.allow_dir_list = config_dict['allow_dir_list']
+            if 'base_path' in config_dict:
+                self.base_path = config_dict['base_path']
+            if 'listen_addr' in config_dict:
+                self.listen_addr = config_dict['listen_addr']
+            if 'listen_port' in config_dict:
+                self.listen_port = config_dict['listen_port']
+            if 'logg_level' in config_dict:
+                self.logg_level = config_dict['logg_level']
+            if 'server_cert' in config_dict:
+                self.server_cert = config_dict['server_cert']
+            if 'server_key' in config_dict:
+                self.server_key = config_dict['server_key']
 
     def run(self):
         while True:
@@ -37,14 +63,14 @@ class gMNd:
                 conn.getpeercert()))
             try:
                 request = conn.recv()
-                logging.debug(request)
+                logging.debug("Full request: {}".format(request))
                 url = urlparse(request)
                 scheme = url.scheme.decode()
                 netloc = url.netloc.decode()
                 path = url.path.decode().rstrip()
-                logging.debug(scheme)
-                logging.debug(netloc)
-                logging.debug(path)
+                logging.debug("Scheme: {}".format(scheme))
+                logging.debug("Netloc: {}".format(netloc))
+                logging.debug("Path: {}".format(path))
 
                 header = get_header()
                 body = b""
@@ -52,8 +78,8 @@ class gMNd:
                     if not path.endswith(".gmi"):
                         header = get_header(
                             '20',
-                            mimetypes.guess_type(
-                                self.base_path + path)[0].encode())
+                            mimetypes.guess_type(self.base_path +
+                                                 path)[0].encode())
                     cfile = open(self.base_path + path)
                     body = cfile.read().encode()
                     cfile.close()
@@ -63,7 +89,7 @@ class gMNd:
                                  '/index.gmi')
                     body = cfile.read().encode()
                     cfile.close()
-                    logging.debug(body)
+                    logging.debug("Body: {}".format(body))
                 elif os.path.isdir(self.base_path +
                                    path) and self.allow_dir_list:
                     body = self.get_dir_list(path)
@@ -111,8 +137,8 @@ def get_header(status='20', meta=b"text/gemini"):
 
 
 if __name__ == "__main__":
-    server = gMNd({
-        'allow_dir_list': True,
-        'listen_addr': '0.0.0.0'
-    })
+    options = {}
+    if (sys.argv[1] == "-f" or sys.argv[1] == "--file") and sys.argv[2]:
+        options['config_file'] = sys.argv[2]
+    server = gMNd(options)
     server.run()

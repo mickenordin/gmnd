@@ -15,9 +15,11 @@ RUN openssl req \
     -extensions san \
     -config openssl.conf
 FROM python:3 AS deploy-stage
+RUN pip install pyyaml
 WORKDIR /app
 COPY ./gmnd/__init__.py .
 COPY ./content content
+COPY config.yml .
 COPY --from=build-stage /app/certs certs
 EXPOSE 1965
-CMD ["python", "__init__.py"]
+CMD ["python", "__init__.py", "--file", "config.yml" ]
