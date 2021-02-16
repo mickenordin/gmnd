@@ -1,5 +1,5 @@
 # gMNd
-gMNd is my gemini server, which is written in python. Documentation will primarily be supplied via [gemini://mic.ke/gmnd/docs](gemini://mic.ke/gmnd/docs), but if you are not yet able to access content via gemini, here is a quick start guid for your viewing pleasure:
+gMNd is my gemini server, which is written in python. Documentation will primarily be supplied via [gemini://mic.ke/gmnd/docs](gemini://mic.ke/gmnd/docs), but if you are not yet able to access content via gemini, here is a quick start guide for your viewing pleasure:
 
 Currently it only serves static files. You can build and run it from the supplied Dockerfile if you so whish:
 ```
