@@ -1,4 +1,5 @@
 import logging
+import mimetypes
 import os
 import socket
 import ssl
@@ -48,6 +49,11 @@ class gMNd:
                 header = get_header()
                 body = b""
                 if os.path.isfile(self.base_path + path):
+                    if not path.endswith(".gmi"):
+                        header = get_header(
+                            '20',
+                            mimetypes.guess_type(
+                                self.base_path + path)[0].encode())
                     cfile = open(self.base_path + path)
                     body = cfile.read().encode()
                     cfile.close()
@@ -71,7 +77,7 @@ class gMNd:
                 conn.shutdown(socket.SHUT_RDWR)
                 conn.close()
 
-    def get_dir_list(self,directory):
+    def get_dir_list(self, directory):
         contents = b"#Contents:\r\n"
         dirs = []
         files = []
@@ -90,20 +96,23 @@ class gMNd:
         return contents
 
 
-def get_header(status='20', meta = b""):
+def get_header(status='20', meta=b"text/gemini"):
     metadict = {}
     metadict['10'] = meta
-    metadict['20'] = b"text/gemini"
+    metadict['20'] = meta
     metadict['30'] = meta
     metadict['40'] = meta
     metadict['50'] = meta
     metadict['60'] = b"Client certificate required"
     separator = b" "
     terminator = b"\r\n"
-    header =  bytes(status.encode()) + separator + metadict[status] + terminator
-    return header 
+    header = bytes(status.encode()) + separator + metadict[status] + terminator
+    return header
 
 
 if __name__ == "__main__":
-    server = gMNd({'allow_dir_list': True, 'logg_level': logging.DEBUG, 'listen_addr': '0.0.0.0'})
+    server = gMNd({
+        'allow_dir_list': True,
+        'listen_addr': '0.0.0.0'
+    })
     server.run()
