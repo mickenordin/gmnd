@@ -24,6 +24,7 @@ class gMNd:
         if self.config_file:
             if os.path.isfile(self.config_file):
                 self.read_config()
+                logging.basicConfig(stream=sys.stderr, level=self.logg_level)
             else:
                 logging.warning("Config file supplied, but it is not a file")
         self.bindsocket = socket.socket()
@@ -43,7 +44,18 @@ class gMNd:
             if 'listen_port' in config_dict:
                 self.listen_port = config_dict['listen_port']
             if 'logg_level' in config_dict:
-                self.logg_level = config_dict['logg_level']
+                if config_dict['logg_level'] == "CRITICAL":
+                    self.logg_level = logging.CRITICAL
+                elif config_dict['logg_level'] == "DEBUG":
+                    self.logg_level = logging.DEBUG
+                elif config_dict['logg_level'] == "ERROR":
+                    self.logg_level = logging.ERROR
+                elif config_dict['logg_level'] == "INFO":
+                    self.logg_level = logging.INFO
+                elif config_dict['logg_level'] == "NOTSET":
+                    self.logg_level = logging.NOTSET
+                elif config_dict['logg_level'] == "WARNING":
+                    self.logg_level = logging.WARNING
             if 'server_cert' in config_dict:
                 self.server_cert = config_dict['server_cert']
             if 'server_key' in config_dict:

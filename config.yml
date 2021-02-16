@@ -1,3 +1,4 @@
 ---
 allow_dir_list: true
 listen_addr: '0.0.0.0'
+logg_level: 'DEBUG'
