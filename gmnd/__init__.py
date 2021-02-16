@@ -72,7 +72,7 @@ class gMNd:
                 conn.close()
 
     def get_dir_list(self,directory):
-        contents = b"Contents:\r\n"
+        contents = b"#Contents:\r\n"
         dirs = []
         files = []
         for mfile in os.listdir(self.base_path + directory):
@@ -105,5 +105,5 @@ def get_header(status='20', meta = b""):
 
 
 if __name__ == "__main__":
-    server = gMNd({'allow_dir_list': True})
+    server = gMNd({'allow_dir_list': True, 'logg_level': logging.DEBUG, 'listen_addr': '0.0.0.0'})
     server.run()
