@@ -2,6 +2,6 @@
 allow_dir_list: true
 listen_addr: '0.0.0.0'
 logg_level: 'DEBUG'
-#cgi_registry:
-#     /.*: 
-#      - ./cgi-bin/envtest.sh
+cgi_registry:
+     /envtest.*: 
+      - ./cgi-bin/envtest.sh
