@@ -16,6 +16,7 @@ class gMNd:
     def __init__(self, options={}):
         self.allow_dir_list = options.get('allow_dir_list', False)
         self.base_path = options.get('base_path', './content')
+        self.cgi_registry = options.get('cgi_registry', None)
         self.config_file = options.get('config_file', None)
         self.listen_addr = options.get('listen_addr', '127.0.0.1')
         self.listen_port = options.get('listen_port', 1965)
