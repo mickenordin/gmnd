@@ -19,7 +19,8 @@ RUN pip install pyyaml
 WORKDIR /app
 COPY ./gmnd/__init__.py .
 COPY ./content content
+COPY ./cgi-bin cgi-bin
 COPY config.yml .
 COPY --from=build-stage /app/certs certs
 EXPOSE 1965
-CMD ["python", "__init__.py", "--file", "config.yml" ]
+CMD ["python", "__init__.py", "--file", "./config.yml" ]

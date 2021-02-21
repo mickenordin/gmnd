@@ -1,10 +1,12 @@
 import logging
 import mimetypes
 import os
+import re
 import socket
 import ssl
 import sys
 from socket import AF_INET, SHUT_RDWR, SO_REUSEADDR, SOCK_STREAM, SOL_SOCKET
+import subprocess
 from urllib.parse import urlparse
 
 import yaml
@@ -39,6 +41,8 @@ class gMNd:
                 self.allow_dir_list = config_dict['allow_dir_list']
             if 'base_path' in config_dict:
                 self.base_path = config_dict['base_path']
+            if 'cgi_registry' in config_dict:
+                self.cgi_registry = config_dict['cgi_registry']
             if 'listen_addr' in config_dict:
                 self.listen_addr = config_dict['listen_addr']
             if 'listen_port' in config_dict:
@@ -67,6 +71,7 @@ class gMNd:
             newsocket, fromaddr = self.bindsocket.accept()
             logging.debug("Client connected: {}:{}".format(
                 fromaddr[0], fromaddr[1]))
+
             conn = ssl.wrap_socket(newsocket,
                                    server_side=True,
                                    certfile=self.server_cert,
@@ -86,7 +91,23 @@ class gMNd:
 
                 header = get_header()
                 body = b""
-                if os.path.isfile(self.base_path + path):
+
+
+                try:
+                    for key, val in self.cgi_registry.items():
+                        if re.match(key, path):
+                            cgi = True
+                            env = self.get_env(url, fromaddr[0])
+                            script = val
+                except:
+                    cgi = False
+                    script = None
+                    env = None
+
+                if cgi:
+                    body = run_cgi(script, env)[0]
+
+                elif os.path.isfile(self.base_path + path):
                     if not path.endswith(".gmi"):
                         header = get_header(
                             '20',
@@ -132,6 +153,41 @@ class gMNd:
         for entry in files:
             contents = contents + b"=> " + entry.encode() + b"\r\n"
         return contents
+
+    def get_env(self, url, remote_addr):
+        path = url.path.decode().rstrip()
+        query = url.query.decode().rstrip()
+        env = {}
+        env['GATEWAY_INTERFACE'] = 'CGI/1.1'
+        env['GEMINI_DOCUMENT_ROOT'] = str(self.base_path)
+        env['GEMINI_URL'] = str(url.geturl().decode().rstrip())
+        env['GEMINI_URL_PATH'] = str(path)
+        env['PATH_INFO'] = str(path)
+        env['PATH_TRANSLATED'] = str(self.base_path + path)
+        env['QUERY_STRING'] = str(query)
+        env['REMOTE_ADDR'] = str(remote_addr)
+        try:
+            env['REMOTE_HOST'] = str(
+                socket.getfqdn(socket.gethostbyaddr(remote_addr)[0]))
+        except:
+            env['REMOTE_HOST'] = str(remote_addr)
+        env['SERVER_NAME'] = str(socket.getfqdn())
+        env['SERVER_PORT'] = str(self.listen_port)
+        env['SERVER_PROTOCOL'] = 'GEMINI'
+        env['SERVER_SOFTWARE'] = 'gMNd'
+
+        return env
+
+
+def run_cgi(script, menv):
+    """Run a command on system and capture result"""
+    process = subprocess.Popen(script,
+                               env=menv,
+                               shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    result = process.communicate()
+    return result
 
 
 def get_header(status='20', meta=b"text/gemini"):
