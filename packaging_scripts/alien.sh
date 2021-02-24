@@ -10,7 +10,7 @@ cd ${BASEDIR}
 sudo rpm --import ${BASEDIR}/repo/PUBLIC.KEY 
 
 # Convert deb to rpm
-sudo alien -g -r ${BASEDIR}/gmnd_${VERSION}_all.deb
+sudo alien --scripts -g -r ${BASEDIR}/gmnd_${VERSION}_all.deb
 
 # Remove generated specfile
 sudo rm ${BASEDIR}/gmnd-${VERSION}/gmnd-*.spec

@@ -18,7 +18,7 @@ static files, or run cgi-scripts. Documentation will primarily be supplied
 via gemini://mic.ke/gmnd/docs
 
 %files
-%docdir usr/share/doc/gmnd
+%docdir /usr/share/doc/gmnd
 "/usr/share/doc/gmnd/changelog.gz"
 "/usr/share/doc/gmnd/copyright"
 %config "/etc/gmnd/config.yml"
