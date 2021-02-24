@@ -1,12 +1,13 @@
+#!/usr/bin/python3
 import logging
 import mimetypes
 import os
 import re
 import socket
 import ssl
+import subprocess
 import sys
 from socket import AF_INET, SHUT_RDWR, SO_REUSEADDR, SOCK_STREAM, SOL_SOCKET
-import subprocess
 from urllib.parse import urlparse
 
 import yaml
@@ -29,6 +30,12 @@ class gMNd:
                 logging.basicConfig(stream=sys.stderr, level=self.logg_level)
             else:
                 logging.warning("Config file supplied, but it is not a file")
+        if not (os.path.isfile(self.server_cert)
+                and os.path.isfile(self.server_key)):
+            logging.error("ERROR: " + str(self.server_cert) + " and/or " +
+                          str(self.server_key) +
+                          " does not exist, and TLS is required for gemini.")
+            sys.exit(1)
         self.bindsocket = socket.socket()
 
         self.bindsocket.bind((self.listen_addr, self.listen_port))
@@ -92,7 +99,7 @@ class gMNd:
                 header = get_header()
                 body = b""
 
-
+                cgi = False
                 try:
                     for key, val in self.cgi_registry.items():
                         if re.match(key, path):
@@ -100,7 +107,6 @@ class gMNd:
                             env = self.get_env(url, fromaddr[0])
                             script = val
                 except:
-                    cgi = False
                     script = None
                     env = None
 
@@ -174,7 +180,7 @@ class gMNd:
         env['SERVER_NAME'] = str(socket.getfqdn())
         env['SERVER_PORT'] = str(self.listen_port)
         env['SERVER_PROTOCOL'] = 'GEMINI'
-        env['SERVER_SOFTWARE'] = 'gMNd'
+        env['SERVER_SOFTWARE'] = 'gMNd 0.0.1'
 
         return env
 

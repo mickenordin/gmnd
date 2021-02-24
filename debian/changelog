@@ -1,0 +1,5 @@
+gmnd (0.0.1) unstable; urgency=low
+
+    * Initial Debian packaging.
+
+ -- Micke Nordin <hej@mic.ke>  Wed, 24 Feb 2021 09:18:37 +0100 

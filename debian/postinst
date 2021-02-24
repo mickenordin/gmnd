@@ -1,0 +1,3 @@
+adduser --system gmnd --home /var/gemini
+usermod -aG ssl-cert gmnd
+chown -R gmnd: /var/gemini/*

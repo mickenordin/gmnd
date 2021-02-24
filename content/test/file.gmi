@@ -1,4 +1,0 @@
-# Heading test
-
-* item
-* item 2

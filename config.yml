@@ -1,7 +1,15 @@
 ---
-allow_dir_list: true
-listen_addr: '0.0.0.0'
-logg_level: 'DEBUG'
-cgi_registry:
-     /envtest.*: 
-      - ./cgi-bin/envtest.sh
+# Uncomment below line to allow automtic directory indexing
+#allow_dir_list: true
+# Below is default bas path for your content
+base_path: /var/gemini/gemtext
+# To allow connectiond from the outside, set listen address below
+#listen_addr: '0.0.0.0'
+# To set debug logging, uncomment below line
+#logg_level: 'DEBUG'
+# To enable cgi functionality, configure something like below
+#cgi_registry:
+#     /envtest.*: 
+#      - /var/gemini/cgi-bin/envtest.sh
+server_cert: /etc/ssl/certs/ssl-cert-snakeoil.pem
+server_key: /etc/ssl/private/ssl-cert-snakeoil.key

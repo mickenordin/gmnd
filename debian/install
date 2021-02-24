@@ -1,0 +1,4 @@
+gmnd/* /usr/lib/python3/dist-packages/gmnd/
+content/* /var/gemini/gemtext
+cgi-bin/* /var/gemini/cgi-bin
+config.yml /etc/gmnd
