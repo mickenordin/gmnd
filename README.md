@@ -1,6 +1,31 @@
 # gMNd
 gMNd is my gemini server, which is written in python. It has support for serving static files, or run cgi-scripts. Documentation will primarily be supplied via [gemini://mic.ke/gmnd/docs](gemini://mic.ke/gmnd/docs), but if you are not yet able to access content via gemini, here is a quick start guide for your viewing pleasure:
 
+## Installation
+Please use supplied debian and rpm repos. Packages are signed with gpg.
+
+### DEB
+```
+curl https://repo.mic.ke/PUBLIC.KEY | sudo apt-key add -
+curl https://repo.mic.ke/debian/debian-micke-unstable.list | sudo tee /etc/apt/sources.list.d/debian-micke-unstable.list
+sudo apt update && sudo apt install gmnd
+```
+Unless you are using resolvconf and systemd-resolvd, NetworkManager might empty /etc/resolv.conf when you remove the last tunnel. This step is optional, but recommended:
+```
+sudo apt install resolvconf
+sudo systemctl restart systemd-resolved.service
+```
+
+### RPM
+```
+wget https://repo.mic.ke/PUBLIC.KEY
+sudo rpm --import PUBLIC.KEY
+sudo dnf config-manager --add-repo https://repo.mic.ke/rpm/rpm-micke.repo
+sudo dnf install gmnd
+```
+
+### Docker
+
 You can build and run it from the supplied Dockerfile if you so whish:
 ```
 docker build -t gmnd:latest .
