@@ -44,7 +44,10 @@ class gMNd:
 
     def read_config(self):
         with open(self.config_file) as configfile:
-            config_dict = yaml.load(configfile, Loader=yaml.FullLoader)
+            try:
+                config_dict = yaml.load(configfile, Loader=yaml.FullLoader)
+            except AttributeError:
+                config_dict = yaml.safe_load(configfile)
             if 'allow_dir_list' in config_dict:
                 self.allow_dir_list = config_dict['allow_dir_list']
             if 'base_path' in config_dict:
