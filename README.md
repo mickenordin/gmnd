@@ -10,11 +10,8 @@ curl https://repo.mic.ke/PUBLIC.KEY | sudo apt-key add -
 curl https://repo.mic.ke/debian/debian-micke-unstable.list | sudo tee /etc/apt/sources.list.d/debian-micke-unstable.list
 sudo apt update && sudo apt install gmnd
 ```
-Unless you are using resolvconf and systemd-resolvd, NetworkManager might empty /etc/resolv.conf when you remove the last tunnel. This step is optional, but recommended:
-```
-sudo apt install resolvconf
-sudo systemctl restart systemd-resolved.service
-```
+
+
 
 ### RPM
 ```
